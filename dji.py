@@ -38,7 +38,11 @@ com_port_found = False
 
 for port in serial.tools.list_ports.comports(True):
     if port.description.find('DJI USB VCOM For Protocol') == 0:
-        serial_port = serial.Serial(port=port.name, baudrate=baud_rate)
+        port_name = port.name
+        # Fallback for Windows 11: port name is empty, have to parse it:
+        if port_name == None:
+            port_name = port.device
+        serial_port = serial.Serial(port=port_name, baudrate=baud_rate)
         # set color to green
         print('\u001b[32;1m')
         print(port.description, 'found and opened for communication')
