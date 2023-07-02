@@ -76,5 +76,8 @@ This script is based on the [Matsemann/mDjiController](https://github.com/Matsem
 
 ## Change log
 
+### **1.0.1** (2023-07-02)
+- Fallback for Windows 11: port must be configured before it can be used.
+
 ### **1.0.0** (2023-06-20)
 - First release
