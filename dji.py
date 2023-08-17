@@ -7,8 +7,12 @@ import serial.tools.list_ports
 import vgamepad as vg
 from dotenv import load_dotenv
 
+from colorama import just_fix_windows_console
+just_fix_windows_console()
+
 load_dotenv()
 baud_rate = os.environ.get('BAUD_RATE')
+baud_rate = 921600
 serial_port = None  # serial port
 
 gamepad = vg.VX360Gamepad()
@@ -92,7 +96,7 @@ def threaded_function():
         while True:
             gamepad.left_joystick(int(state['lx']), int(state['ly']))
             gamepad.right_joystick(int(state['rx']), int(state['ry']))
-            if state['camera'] >= 32500:
+            if state['camera'] >= 31000:
                 gamepad.release_button(buttons[button_l])
                 gamepad.press_button(buttons[button_r])
             elif state['camera'] <= -32500:
@@ -128,30 +132,47 @@ try:
         while True:
             b = serial_port.read(1)
             if b == bytearray.fromhex('55'):
-                buffer.extend(b)
-                ph = serial_port.read(2)
+                print(".", end= '', flush = True )
+                buffer.extend(b)  #1
+                ph = serial_port.read(2) #3
                 buffer.extend(ph)
                 ph = struct.unpack('<H', ph)[0]
-                pl = 0b0000001111111111 & ph
-                pv = 0b1111110000000000 & ph
-                pv = pv >> 10
-                pc = serial_port.read(1)
-                buffer.extend(pc)
-                pd = serial_port.read(pl - 4)
-                buffer.extend(pd)
-                break
+                pl = 0b0000001111111111 & ph #packet length?
+                #pv = 0b1111110000000000 & ph
+                #pv = pv >> 10                
+                if pl != 38:
+                    print("X", end= '', flush = True )
+                    serial_port.write(bytearray.fromhex('55 0d 04 33 0a 06 eb 34 40 06 01 74 24'))
+                    break  # 1 more responsive
+                else:
+
+                    pc = serial_port.read(1) #4
+                    buffer.extend(pc)
+                    pd = serial_port.read(pl - 4)
+                    buffer.extend(pd)
+                    break
             else:
+                print("O", end= '', flush = True )
+                serial_port.write(bytearray.fromhex('55 0d 04 33 0a 06 eb 34 40 06 01 74 24')) # 2 works non stop
                 break
+        
         data = buffer
 
         # DJI joysticks and camera have a length of 38 bytes
         if len(data) == 38:
+            olx = state['lx']
+            oly = state['ly']
+            orx = state['rx']
+            ory = state['ry']
+            ocm = state['camera']
             # print([hex(x) for x in data])
             state['rx'] = parse_input(data[13:15])
             state['ry'] = parse_input(data[16:18])
             state['ly'] = parse_input(data[19:21])
             state['lx'] = parse_input(data[22:24])
             state['camera'] = parse_input(data[25:27])
+            if olx != state['lx'] or oly != state['ly'] or orx != state['rx'] or ory != state['ry'] or ocm != state['camera']:
+                print( "lx = ", state['lx'],  " ly= ", state['ly'], ", rx = ", state['rx'], "ry = ", state['ry'], ", camera = ", state['camera'] )
 except serial.SerialException as e:
     print('\u001b[31;1m')
     print('Could not read/write:', e)
