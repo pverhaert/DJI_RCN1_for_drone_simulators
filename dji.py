@@ -12,7 +12,6 @@ just_fix_windows_console()
 
 load_dotenv()
 baud_rate = os.environ.get('BAUD_RATE')
-baud_rate = 921600
 serial_port = None  # serial port
 
 gamepad = vg.VX360Gamepad()
@@ -120,19 +119,40 @@ stop_thread = threading.Event()
 thread = threading.Thread(target=threaded_function, args=())
 thread.start()
 
+animation = 0
+
+print( "\n\u001b[33;1mLX =      0  LY=      0 , RX =      0 RY =      0 , Camera =      0\u001b[2A" )
+
+
 try:
-    # if serial_port is open from previous run, close it and open it again
-    if serial_port.is_open:
-        serial_port.close()
-    serial_port.open()
     while True:
-        # time.sleep(0.1)
+        no_header = 0
+        bad_length = 0
+        #time.sleep(0.1) # with this no status print
         serial_port.write(bytearray.fromhex('55 0d 04 33 0a 06 eb 34 40 06 01 74 24'))
         buffer = bytearray.fromhex('')
         while True:
+
             b = serial_port.read(1)
-            if b == bytearray.fromhex('55'):
-                print(".", end= '', flush = True )
+
+            print('\u001b[32m', end= '', flush = True)
+            match animation:
+                case 0:
+                    print("-", end= '', flush = True ) #\u001b[1D
+                case 1:
+                    print("/", end= '', flush = True )
+                case 2:
+                    print("-", end= '', flush = True )
+                case 3:
+                    print("\\", end= '', flush = True )                        
+                case 4:
+                    print("|", end= '', flush = True )                        
+            animation = animation + 1
+            if animation == 5:
+                animation = 0
+            
+            if b == bytearray.fromhex('55'): # packet header
+                        
                 buffer.extend(b)  #1
                 ph = serial_port.read(2) #3
                 buffer.extend(ph)
@@ -141,20 +161,32 @@ try:
                 #pv = 0b1111110000000000 & ph
                 #pv = pv >> 10                
                 if pl != 38:
-                    print("X", end= '', flush = True )
+                    bad_length = 1
                     serial_port.write(bytearray.fromhex('55 0d 04 33 0a 06 eb 34 40 06 01 74 24'))
                     break  # 1 more responsive
                 else:
-
                     pc = serial_port.read(1) #4
                     buffer.extend(pc)
                     pd = serial_port.read(pl - 4)
                     buffer.extend(pd)
                     break
-            else:
-                print("O", end= '', flush = True )
+            else: #no packet header
+                no_header = 1
                 serial_port.write(bytearray.fromhex('55 0d 04 33 0a 06 eb 34 40 06 01 74 24')) # 2 works non stop
                 break
+        
+        if no_header == 1:
+            print("\u001b[31;1m Looking4Header  ", end= '', flush = True ) 
+        else:
+            if bad_length == 1:
+                print("                 ", end= '', flush = True ) 
+            
+        if bad_length == 1:
+            print("\u001b[31;1mBadLenght", end= '', flush = True )  
+
+        if no_header == 0 and bad_length == 0:            
+            print("                          ", end= '', flush = True )
+        print("\u001b[30D", end= '', flush = True ) 
         
         data = buffer
 
@@ -171,14 +203,20 @@ try:
             state['ly'] = parse_input(data[19:21])
             state['lx'] = parse_input(data[22:24])
             state['camera'] = parse_input(data[25:27])
+            
             if olx != state['lx'] or oly != state['ly'] or orx != state['rx'] or ory != state['ry'] or ocm != state['camera']:
-                print( "lx = ", state['lx'],  " ly= ", state['ly'], ", rx = ", state['rx'], "ry = ", state['ry'], ", camera = ", state['camera'] )
+                print( "\n\u001b[33;1mLX =", '{:6d}'.format( state['lx'] ) ,  " LY=", '{:6d}'.format( state['ly'] ) 
+                            , ", RX =", '{:6d}'.format( state['rx'] ), "RY =", '{:6d}'.format( state['ry'] ) 
+                            , ", Camera =", '{:6d}'.format( state['camera'] ), "\u001b[2A" )
+        
+        print("\u001b[1D", end= '', flush = True )
+            
 except serial.SerialException as e:
     print('\u001b[31;1m')
     print('Could not read/write:', e)
     print('\u001b[0m')
 except KeyboardInterrupt:
-    print('Stopping...\n')
+        print('Stopping...\n\u001b[0m')
 finally:
     stop_thread.set()
     serial_port.close()
