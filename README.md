@@ -21,7 +21,6 @@ IMPORTANT: **DO NOT** run this script while DJI Assistant 2 is running!
 
 ![Working in Windows terminal](assets/working_in_windows_terminal_with_errors.png)
 
-
 4. Click `Ctrl+C` on Windows or `Cmd+C` on Mac to stop the script.
 
 **TIP**: test if the controller works with the [Gamepad Tester](https://gamepad-tester.com/).  
