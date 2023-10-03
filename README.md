@@ -11,7 +11,7 @@ This script turns your **DJI RC-N1 controller** into an **Xbox 360 controller**,
 This is only needed to install the DJI drivers for the controller.  
 IMPORTANT: **DO NOT** run this script while DJI Assistant 2 is running!
 2. Download and install [Python 3.x.x](https://www.python.org/downloads/).
-3. Install the required packages for this project: `pip3 install vgamepad pyserial python-dotenv`.
+3. Install the required packages for this project: `pip3 install vgamepad pyserial python-dotenv colorama`.
 
 ## How to use
 
@@ -61,6 +61,10 @@ If all of the above is correct, you should see the controller as **"DJI USB VCOM
 ## Credits
 
 This script is based on the [Matsemann/mDjiController](https://github.com/Matsemann/mDjiController) script with extra features to customize the mapping of the Camera Control Dial.
+
+## Contributors
+- [Maaciej](https://github.com/Maaciej)
+- [Konrad Iturbe](https://github.com/KonradIT)
 
 ## Change log
 
