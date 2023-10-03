@@ -121,21 +121,19 @@ thread.start()
 
 animation = 0
 
-print( "\n\u001b[33;1mLX =      0  LY=      0 , RX =      0 RY =      0 , Camera =      0\u001b[2A" )
-
+print( "\n\u001b[33;1mLX =      0 , LY =      0 , RX =      0 , RY =      0 , Camera =      0\u001b[2A" )
 
 try:
     while True:
-        no_header = 0
         bad_length = 0
+     
         #time.sleep(0.1) # with this no status print
         serial_port.write(bytearray.fromhex('55 0d 04 33 0a 06 eb 34 40 06 01 74 24'))
         buffer = bytearray.fromhex('')
         while True:
 
             b = serial_port.read(1)
-
-            print('\u001b[32m', end= '', flush = True)
+            print('             \u001b[30D\u001b[32m', end= '', flush = True)
             match animation:
                 case 0:
                     print("-", end= '', flush = True ) #\u001b[1D
@@ -151,65 +149,49 @@ try:
             if animation == 5:
                 animation = 0
             
-            if b == bytearray.fromhex('55'): # packet header
+            if b == bytearray.fromhex('55'): # packet header, read rest of packet
                         
                 buffer.extend(b)  #1
                 ph = serial_port.read(2) #3
                 buffer.extend(ph)
                 ph = struct.unpack('<H', ph)[0]
-                pl = 0b0000001111111111 & ph #packet length?
-                #pv = 0b1111110000000000 & ph
-                #pv = pv >> 10                
-                if pl != 38:
+                pl = 0b0000001111111111 & ph #packet length? 10bits
+                
+                pd = serial_port.read( pl - 3 ) #read rest of packet
+                buffer.extend(pd)  
+                
+                if pl != 38: #bad packet size, , not position report
                     bad_length = 1
-                    serial_port.write(bytearray.fromhex('55 0d 04 33 0a 06 eb 34 40 06 01 74 24'))
-                    break  # 1 more responsive
-                else:
-                    pc = serial_port.read(1) #4
-                    buffer.extend(pc)
-                    pd = serial_port.read(pl - 4)
-                    buffer.extend(pd)
-                    break
-            else: #no packet header
-                no_header = 1
-                serial_port.write(bytearray.fromhex('55 0d 04 33 0a 06 eb 34 40 06 01 74 24')) # 2 works non stop
-                break
-        
-        if no_header == 1:
-            print("\u001b[31;1m Looking4Header  ", end= '', flush = True ) 
-        else:
-            if bad_length == 1:
-                print("                 ", end= '', flush = True ) 
-            
+
+                serial_port.write(bytearray.fromhex('55 0d 04 33 0a 06 eb 34 40 06 01 74 24'))
+                break #packet read, exit while
+                
+        #after while, sent packet read
         if bad_length == 1:
-            print("\u001b[31;1mBadLenght", end= '', flush = True )  
+            print("\u001b[31;1m BadSize ", pl, end= '', flush = True )  
 
-        if no_header == 0 and bad_length == 0:            
-            print("                          ", end= '', flush = True )
-        print("\u001b[30D", end= '', flush = True ) 
-        
-        data = buffer
+        else:
+            data = buffer
 
-        # DJI joysticks and camera have a length of 38 bytes
-        if len(data) == 38:
-            olx = state['lx']
-            oly = state['ly']
-            orx = state['rx']
-            ory = state['ry']
-            ocm = state['camera']
-            # print([hex(x) for x in data])
-            state['rx'] = parse_input(data[13:15])
-            state['ry'] = parse_input(data[16:18])
-            state['ly'] = parse_input(data[19:21])
-            state['lx'] = parse_input(data[22:24])
-            state['camera'] = parse_input(data[25:27])
+            # DJI joysticks and camera have a length of 38 bytes
+            if len(data) == 38:
+                olx = state['lx']
+                oly = state['ly']
+                orx = state['rx']
+                ory = state['ry']
+                ocm = state['camera']
+                # print([hex(x) for x in data])
+                state['rx'] = parse_input(data[13:15])
+                state['ry'] = parse_input(data[16:18])
+                state['ly'] = parse_input(data[19:21])
+                state['lx'] = parse_input(data[22:24])
+                state['camera'] = parse_input(data[25:27])
+                
+                if olx != state['lx'] or oly != state['ly'] or orx != state['rx'] or ory != state['ry'] or ocm != state['camera']:
+                    print( "\n\u001b[33;1mLX =", '{:6d}'.format( state['lx'] ) ,  ", LY =", '{:6d}'.format( state['ly'] ) 
+                                , ", RX =", '{:6d}'.format( state['rx'] ), ", RY =", '{:6d}'.format( state['ry'] ) 
+                                , ", Camera =", '{:6d}'.format( state['camera'] ), "\u001b[2A", flush = True )
             
-            if olx != state['lx'] or oly != state['ly'] or orx != state['rx'] or ory != state['ry'] or ocm != state['camera']:
-                print( "\n\u001b[33;1mLX =", '{:6d}'.format( state['lx'] ) ,  " LY=", '{:6d}'.format( state['ly'] ) 
-                            , ", RX =", '{:6d}'.format( state['rx'] ), "RY =", '{:6d}'.format( state['ry'] ) 
-                            , ", Camera =", '{:6d}'.format( state['camera'] ), "\u001b[2A" )
-        
-        print("\u001b[1D", end= '', flush = True )
             
 except serial.SerialException as e:
     print('\u001b[31;1m')

@@ -18,21 +18,9 @@ IMPORTANT: **DO NOT** run this script while DJI Assistant 2 is running!
 1. Connect your DJI RC-N1 controller to your computer via the USB-C port <b style="color: darkred">ON THE BOTTOM PORT</b> (the port between the two joystick holders) of the controller.
 2. Power on the controller.
 3. Run `python dji.py` from the terminal to start the script.  
-```bash
-$ python dji.py
 
-DJI USB VCOM For Protocol (COMx) found and opened for communication
-Your DJI RC-N1 controller runs in Xbox 360 mode now
-Happy flying :-)
+![Working in Windows terminal](assets/working_in_windows_terminal_with_errors.png)
 
-Use the following key mapping:
-  Left Stick: Pitch and Roll
-  Right Stick: Yaw and Throttle
-  Camera Control Dial all the way to the right: B button
-  Camera Control Dial all the way to the left: A button
-
-Press Ctrl+C to stop (or close terminal window)
-```
 4. Click `Ctrl+C` on Windows or `Cmd+C` on Mac to stop the script.
 
 **TIP**: test if the controller works with the [Gamepad Tester](https://gamepad-tester.com/).  
@@ -76,6 +64,9 @@ This script is based on the [Matsemann/mDjiController](https://github.com/Matsem
 
 ## Change log
 
+### **1.0.11** (2023-08-31)
+- More stable and with position status report.
+  
 ### **1.0.1** (2023-07-02)
 - Fallback for Windows 11: port must be configured before it can be used.
 
