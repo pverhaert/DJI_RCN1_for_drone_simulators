@@ -19,13 +19,23 @@ IMPORTANT: **DO NOT** run this script while DJI Assistant 2 is running!
 2. Power on the controller.
 3. Run `python dji.py` from the terminal to start the script.
 
-terminal with SHOW_DEBUG=1
+terminal with SHOW_DEBUG=1 (animated gif)
 
-![Working in Windows terminal](assets/debug_Animation.gif)
+![Working in Windows terminal, debug on](assets/debug_Animation.gif)
 
 terminal with SHOW_DEBUG=0, perhaps faster
 
-![Working in Windows terminal](assets/debug_off.png)
+![Working in Windows terminal, debug off](assets/debug_off.png)
+
+From time to time there is bigger lag between measurements,
+to observe this phenomenon with SHOW_DEBUG=1 there is possibility to set SHOW_GT20=1 and programs shows such situations
+
+![Working in Windows terminal, measurement time greater than 20ms](assets/gt20.png)
+
+Additionally after stopping program there is deatiles statistics of transfered data and some information about processed packets
+
+![Working in Windows terminal, ending statistic](assets/longrun.png)
+
 
 4. Click `Ctrl+C` on Windows or `Cmd+C` on Mac to stop the script.
 
@@ -36,11 +46,18 @@ Move the joysticks and the Camera Control Dial to see if the buttons are activat
 
 Besides the two joysticks, only the **Camera Control Dial** is accessible through the script.  
 By default, the Camera Dial is mapped to the **A** (dial all the way to the left) and **B** (dial all the way to the right) buttons of the Xbox controller.  
-In the `.env` file you can change the connection speed ( the `baud rate`) and the Camera Dial mapping.
+In the `.env` file you can change the Camera Dial mapping.
 
 ```bash
 # possible values for BAUD_RATE are: 9600 (slowest), 19200, 38400, 57600, 115200 (fastest)
+# BAUD_RATE is not used, nothing changes for different values, Windows sets everything
 BAUD_RATE=115200
+
+#ON/OFF runtime information, 1 show (default), 0 do not show
+SHOW_DEBUG=1
+
+#ON/OFF show situations when time difference between measure packets is > 20 ms, 1 show, 0 do not show (default), works when SHOW_DEBUG = 1
+SHOW_GT20=0
 
 # possible values for Xbox controller are:
 # A, B, X, Y, START, BACK, LB (left bumper), RB (right bumper), LT (left trigger), RT (right trigger)
@@ -70,6 +87,13 @@ This script is based on the [Matsemann/mDjiController](https://github.com/Matsem
 
 ## Change log
 
+
+### **1.0.2** (2023-10-06)
+- Simpler and more stable and faster
+- possibility to monitor measure times greater than 20 ms
+- measure of serial speed
+- statistic of transmited data and distribution of time between measure packets
+  
 ### **1.0.11** (2023-08-31)
 - More stable and with position status report.
   
