@@ -17,9 +17,15 @@ IMPORTANT: **DO NOT** run this script while DJI Assistant 2 is running!
 
 1. Connect your DJI RC-N1 controller to your computer via the USB-C port <b style="color: darkred">ON THE BOTTOM PORT</b> (the port between the two joystick holders) of the controller.
 2. Power on the controller.
-3. Run `python dji.py` from the terminal to start the script.  
+3. Run `python dji.py` from the terminal to start the script.
 
-![Working in Windows terminal](assets/working_in_windows_terminal_with_errors.png)
+terminal with SHOW_DEBUG=1
+
+![Working in Windows terminal](assets/debug_Animation.gif)
+
+terminal with SHOW_DEBUG=0, perhaps faster
+
+![Working in Windows terminal](assets/debug_off.png)
 
 4. Click `Ctrl+C` on Windows or `Cmd+C` on Mac to stop the script.
 
