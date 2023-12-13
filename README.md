@@ -51,18 +51,22 @@ In the `.env` file you can change the Camera Dial mapping.
 ```bash
 # possible values for BAUD_RATE are: 9600 (slowest), 19200, 38400, 57600, 115200 (fastest)
 # BAUD_RATE is not used, nothing changes for different values, Windows sets everything
-BAUD_RATE=115200
+BAUD_RATE=921600
 
-#ON/OFF runtime information, 1 show (default), 0 do not show
-SHOW_DEBUG=1
+#ON/OFF runtime information, 1 show, 0 do not show (default)
+SHOW_DEBUG=0
 
 #ON/OFF show situations when time difference between measure packets is > 20 ms, 1 show, 0 do not show (default), works when SHOW_DEBUG = 1
 SHOW_GT20=0
+
 
 # possible values for Xbox controller are:
 # A, B, X, Y, START, BACK, LB (left bumper), RB (right bumper), LT (left trigger), RT (right trigger)
 CAMERA_RIGHT_BUTTON=B
 CAMERA_LEFT_BUTTON=A
+
+# how for to move the camera roller to the left/right before the button is triggered (min 0.1, max 1.0, default 0.2)
+CAMERA_ROLL_SENSITIVITY=0.2
 ```
 
 ## Troubleshooting
@@ -91,12 +95,14 @@ This script is based on the [Matsemann/mDjiController](https://github.com/Matsem
 
 ## Change log
 
+### **1.0.3** (2023-12-23)
+- Added sensitivity setting for Camera Control Dial
 
 ### **1.0.2** (2023-10-06)
 - Simpler and more stable and faster
 - possibility to monitor measure times greater than 20 ms
 - measure of serial speed
-- statistic of transmited data and distribution of time between measure packets
+- statistic of transmitted data and distribution of time between measure packets
   
 ### **1.0.11** (2023-08-31)
 - More stable and with position status report.
