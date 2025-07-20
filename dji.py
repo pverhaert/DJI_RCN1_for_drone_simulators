@@ -51,13 +51,15 @@ CAMERA_RIGHT_SENSITIVITY =int(float(os.environ.get('CAMERA_ROLL_SENSITIVITY', 0.
 CAMERA_RIGHT_SENSITIVITY = max(1000, min(CAMERA_RIGHT_SENSITIVITY, 32000))
 CAMERA_LEFT_SENSITIVITY = CAMERA_RIGHT_SENSITIVITY * -1
 
-# try to find the correct serial port starting with the name 'DJI USB VCOM For Protocol'
+DJI_PORT_DESCRIPTIONS = ['DJI USB VCOM For Protocol', 'DEVICE USB VCOM For Protocol']
+
+# try to find the correct serial port, containing name of one of the DJI PORT DESCRIPTIONS
 # if found: open the port and return the serial object
 # if not found: exit with error message
 com_port_found = False
 
 for port in serial.tools.list_ports.comports(True):
-    if port.description.find('DJI USB VCOM For Protocol') == 0:
+    if any(dji_port in port.description for dji_port in DJI_PORT_DESCRIPTIONS):
         port_name = port.name
         # Fallback for Windows 11: port name is empty, have to parse it:
         if port_name == None:
